@@ -26,7 +26,7 @@ Este repositório contém uma aplicação distribuída baseada em microserviços
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/microservices-python.git
+git clone https://github.com/reinaldoweb/microservices.git
 cd microservices-python
 ```
 
