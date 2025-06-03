@@ -60,10 +60,10 @@ docker exec -it event_service python criar_db.py
 
 ## ✅ Status
 
-✔️ pizza_service, order_service, event_service e customer_service funcionando com Docker.  
+✔️ pizza_service, order_service, event_service e customer_service funcionando com Docker.
 🛠️ notifier_service em fase de construção.
 
 ## 👨‍💻 Autor
 
-Reinaldo de Jesus Santos  
-[LinkedIn](https://www.linkedin.com/in/seu-perfil)
+Reinaldo de Jesus Santos
+[LinkedIn](https://www.linkedin.com/in/dev-reinaldo)
