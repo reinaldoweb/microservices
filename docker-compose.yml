@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  pizza_service:
+    build:
+      context: ./pizza_service
+    container_name: pizza_service
+    ports:
+      - "8001:8001"
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    volumes:
+      - ./pizza_service:/app
+    working_dir: /app
+
+  order_service:
+    build:
+      context: ./order_service
+    container_name: order_service
+    ports:
+      - "8000:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./order_service:/app
+    working_dir: /app
+    depends_on:
+      - pizza_service
+      - redis
+
+  event_service:
+    build:
+      context: ./event_service
+    container_name: event_service
+    command: python main.py
+    volumes:
+      - ./event_service:/app
+    working_dir: /app
+    depends_on:
+      - redis
+      - postgres
+
+  notifier_service:
+    build:
+      context: ./notifier_service
+    container_name: notifier_service
+    command: uvicorn main:app --host 0.0.0.0 --port 8002
+    volumes:
+      - ./notifier_service:/app
+    working_dir: /app
+    ports:
+      - "8002:8002"
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: microservices_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
+

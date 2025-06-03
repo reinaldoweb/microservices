@@ -1,0 +1,8 @@
+redis
+sqlalchemy
+asyncpg
+python-dotenv
+pydantic
+httpx
+
+
