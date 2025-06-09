@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from models import OrderRequest, OrderResponse
 import httpx
 from eventos import publicar_pedido_criado
+from auth import verifica_usuario
 
 app = FastAPI(debug=True)
 
@@ -9,7 +10,8 @@ PIZZA_SERVICE_URL = "http://pizza_service:8001"
 API_KEY = "minha-chave-super-secreta"
 
 
-@app.post("/orders", response_model=OrderResponse)
+@app.post("/orders", response_model=OrderResponse, dependencies=[
+    Depends(verifica_usuario)])
 async def create_order(order: OrderRequest):
     async with httpx.AsyncClient() as client:
         try:
