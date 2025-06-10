@@ -4,7 +4,7 @@ from jose import jwt
 import os
 
 SECRET_KEY = os.getenv("SECRET_KEY", "secretkey")
-ALGORITHM = "H256"
+ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -14,8 +14,8 @@ def hashed_password(password: str):
     return pwd_context.hash(password)
 
 
-def verify_password(plain_password, hashed):
-    return pwd_context._verify(plain_password, hashed)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def create_access_token(data: dict):

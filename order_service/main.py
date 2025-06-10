@@ -11,7 +11,9 @@ API_KEY = "minha-chave-super-secreta"
 
 
 @app.post("/orders", response_model=OrderResponse, dependencies=[
-    Depends(verifica_usuario)])
+            Depends(
+                verifica_usuario)
+    ])
 async def create_order(order: OrderRequest):
     async with httpx.AsyncClient() as client:
         try:

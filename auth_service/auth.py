@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from database import get_db
+
 from models import User
-from schemas import UserCreate, UserLogin, TokenResponse
-from utils import hashed_password, verify_password, create_access_token
+from database import get_db
+from schemas import TokenResponse, UserCreate, UserLogin, Token
+from utils import create_access_token, hashed_password, verify_password
 
 
 router = APIRouter()
@@ -14,25 +15,26 @@ router = APIRouter()
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(
         User.username == user.username))
-    if result.scalars():
+    existing_user = result.scalar_one_or_none()
+    if existing_user:
         raise HTTPException(status_code=400, detail="Usuário já existe")
 
     new_user = User(
-                    username=user.name,
-                    hashed_password=hashed_password(user.password))
+                    username=user.username,
+                    password=hashed_password(user.password))
     db.add(new_user)
     await db.commit()
     return {"message": "Usuário registrado com sucesso"}
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=Token)
 async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(
         User.username == user.username))
-    db_user = result.scalars()
+    db_user = result.scalar_one_or_none()
     if not db_user or not verify_password(
-            user.password, db_user.hashed_password):
+            user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
 
-    access_token = create_access_token(data={"sub": user.username})
-    return {"acess_token": access_token, "token_type": "bearer"}
+    token = create_access_token(data={"sub": user.username})
+    return TokenResponse(access_token=token, token_type="bearer")
