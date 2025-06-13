@@ -3,3 +3,6 @@ uvicorn
 httpx
 redis
 python-jose
+python-dotenv
+sqlalchemy
+asyncpg

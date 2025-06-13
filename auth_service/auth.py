@@ -6,7 +6,9 @@ from models import User
 from database import get_db
 from schemas import TokenResponse, UserCreate, UserLogin, Token
 from utils import create_access_token, hashed_password, verify_password
+from dotenv import load_dotenv
 
+load_dotenv()
 
 router = APIRouter()
 

@@ -2,10 +2,13 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://auth_service:8002/login")
-SECRET_KEY = os.getenv("SECRET_KEY", "chave-super-secreta")
+SECRET_KEY = os.getenv("SECRET_KEY", "minha-chave-super-secreta")
 ALGORITHM = "HS256"
 
 
