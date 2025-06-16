@@ -38,5 +38,5 @@ async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
             user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
 
-    token = create_access_token(data={"sub": user.username})
+    token = create_access_token(data={"sub": str(db_user.id)})
     return TokenResponse(access_token=token, token_type="bearer")

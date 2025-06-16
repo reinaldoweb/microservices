@@ -1,12 +1,14 @@
-from uuid import uuid4
 from fastapi import Depends, FastAPI, HTTPException
-from models import OrderRequest, OrderResponse
+from models import Pedido
+from schemas import OrderRequest, OrderResponse
 import httpx
 from eventos import publicar_pedido_criado
 from dependecies import get_current_user
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession
+from database import get_db
 
 app = FastAPI(debug=True)
 
@@ -20,8 +22,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 @app.post("/orders", response_model=OrderResponse)
 async def create_order(
-        order: OrderRequest,
-        user_id: str = Depends(get_current_user)):
+    order: OrderRequest,
+    user_id: str = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+
     # Consulta os dados da pizza no serviço de pizza
     async with httpx.AsyncClient() as client:
         try:
@@ -29,7 +34,7 @@ async def create_order(
                 f"{PIZZA_SERVICE_URL}/pizzas/{order.pizza_id}",
                 headers={"X-API-KEY": API_KEY},
             )
-            
+
             response.raise_for_status()
             pizza = response.json()
         except httpx.HTTPStatusError:
@@ -39,13 +44,24 @@ async def create_order(
     valor_unitario = pizza["preco"]
     valor_total = valor_unitario * order.quantidade
 
-    # Simula dados do pedido no banco de dados
-    pedido_id = str(uuid4())
-    cliente_id = user_id
+    # Simula cliente_id
+    cliente_id = int(user_id)
+
+    # Cria e salva o pedido no banco de dados
+    novo_pedido = Pedido(
+        pizza_nome=pizza["nome"],
+        quantidade=order.quantidade,
+        valor_unitario=valor_unitario,
+        valor_total=valor_total,
+        cliente_id=int(user_id)
+    )
+    db.add(novo_pedido)
+    await db.commit()
+    await db.refresh(novo_pedido)
 
     # Publica evento no Redis
     await publicar_pedido_criado(
-        pedido_id=pedido_id,
+        pedido_id=novo_pedido.id,
         cliente_id=cliente_id,
         total=valor_total,
     )

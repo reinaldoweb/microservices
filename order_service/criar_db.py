@@ -1,5 +1,6 @@
 import asyncio
-from database import engine, Base
+from database import engine
+from models import Base
 
 
 async def criar_tabela():
@@ -8,4 +9,3 @@ async def criar_tabela():
 
 if __name__ == "__main__":
     asyncio.run(criar_tabela())
- 

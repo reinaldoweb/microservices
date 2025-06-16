@@ -11,4 +11,3 @@ class OrderResponse(BaseModel):
     quantidade: int
     valor_unitario: float
     valor_total: float
- 
