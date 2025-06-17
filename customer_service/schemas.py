@@ -1,15 +1,15 @@
 from pydantic import BaseModel, EmailStr
 
 
-class CustomerCreate(BaseModel):
+class ClienteCreate(BaseModel):
     nome: str
     email: EmailStr
 
 
-class CustomerResponse(BaseModel):
+class ClienteResponse(BaseModel):
     id: int
     nome: str
     email: EmailStr
 
     class Config:
-        orm_mode = True  # ← ESSA LINHA É ESSENCIAL!
+        from_attributes = True  # ← ESSA LINHA É ESSENCIAL!
