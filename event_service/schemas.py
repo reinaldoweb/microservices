@@ -7,4 +7,4 @@ class EventoPedidoSchema(BaseModel):
     valor_total: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True

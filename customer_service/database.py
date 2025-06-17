@@ -1,14 +1,17 @@
+import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://postgres:postgres@postgres:5432/microservices_db"
+)
 
 engine = create_async_engine(DATABASE_URL, echo=True)
-Base = declarative_base()
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+AsyncSessionLocal = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def get_db():
-    async with async_session() as session:
+    async with AsyncSessionLocal() as session:
         yield session

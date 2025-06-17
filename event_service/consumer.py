@@ -14,7 +14,7 @@ async def listen_redis():
     pubsub = r.pubsub()
     await pubsub.subscribe("pedido_criado")
 
-    print("📡 Escutando eventos no canal 'pedido_criado'...")
+    print("Escutando eventos no canal 'pedido_criado'...")
 
     async for message in pubsub.listen():
         if message["type"] == "message":
@@ -34,18 +34,17 @@ async def listen_redis():
                     print("✅ Evento salvo no banco!")
 
                 # 2. Notifica outro serviço via HTTP
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(
-                        "http://notifier_service:8002/notificar",
-                        json={
-                            "pedido_id": evento_data.pedido_id,
-                            "cliente_id": evento_data.cliente_id,
-                            "valor_total": evento_data.valor_total,
-                        },
-                    )
-                    print(f"📬 Notificação enviada! Status {response.status_code}")
+                cliente_id = evento_data.cliente_id
+                try:
+                    async with httpx.AsyncClient() as client:
+                        response = await client.get(f"http://customer_service:8003/clientes/{cliente_id}")
+                        response.raise_for_status()
+                        cliente_info = response.json()
+                        print(f"Cliente encontrado: {cliente_info['nome']}")
+                except httpx.HTTPStatusError:
+                    print("Cliente não encontrado")
 
             except json.JSONDecodeError:
-                print(f"❌ Evento malformado: {message['data']}")
+                print(f"Evento malformado: {message['data']}")
             except Exception as e:
-                print(f"❌ Erro ao processar evento: {e}")
+                print(f"Erro ao processar evento: {e}")
