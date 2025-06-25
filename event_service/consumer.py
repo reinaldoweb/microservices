@@ -20,7 +20,7 @@ async def listen_redis():
         if message["type"] == "message":
             try:
                 evento_data = EventoPedidoSchema.parse_raw(message["data"])
-                print(f"📩 Evento recebido: {evento_data}")
+                print(f"Evento recebido: {evento_data}")
 
                 # 1. Salva no banco
                 async with AsyncSessionLocal() as db:
@@ -31,7 +31,7 @@ async def listen_redis():
                     )
                     db.add(novo_evento)
                     await db.commit()
-                    print("✅ Evento salvo no banco!")
+                    print("Evento salvo no banco!")
 
                 # 2. Notifica outro serviço via HTTP
                 cliente_id = evento_data.cliente_id

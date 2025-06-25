@@ -4,17 +4,20 @@ from sqlalchemy.future import select
 
 from database import get_db
 from models import Cliente
-from schemas import ClienteCreate, ClienteResponse
+from schemas import ClienteCreate, ClienteResponse, ClienteUpdate
 
 
 router = APIRouter()
 
 
-@router.post("/clientes", response_model=ClienteResponse)
-async def create_cliente(cliente: ClienteCreate, db: AsyncSession = Depends(get_db)):
+@router.post("/", response_model=ClienteResponse, status_code=200)
+async def create_cliente(cliente: ClienteCreate, db: AsyncSession = Depends(
+                        get_db)
+):
     # Verifica se já existe cliente com mesmo e-mail
-    result = await db.execute(select(ClienteCreate).where(
-                        Cliente.email == Cliente.email))
+    result = await db.execute(
+        select(Cliente).where(Cliente.email == cliente.email)
+    )
     existing = result.scalar_one_or_none()
 
     if existing:
@@ -27,22 +30,22 @@ async def create_cliente(cliente: ClienteCreate, db: AsyncSession = Depends(get_
     return novo_cliente
 
 
-@router.get("/clientes", response_model=list[ClienteResponse])
-async def list_clientes(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Cliente))
-    return result.scalars().all()
+# @router.get("/clientes", response_model=list[ClienteResponse])
+# async def list_clientes(db: AsyncSession = Depends(get_db)):
+#     result = await db.execute(select(Cliente))
+#     return result.scalars().all()
 
 
-@router.get("/clientes/{cliente_id}", response_model=ClienteResponse)
-async def obter_cliente(cliente_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Cliente).where(Cliente.id == cliente_id))
-    cliente = result.scalar_one_or_none()
-    if not cliente:
-        raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    return cliente
+# @router.get("/clientes/{cliente_id}", response_model=ClienteResponse)
+# async def obter_cliente(cliente_id: int, db: AsyncSession = Depends(get_db)):
+#     result = await db.execute(select(Cliente).where(Cliente.id == cliente_id))
+#     cliente = result.scalar_one_or_none()
+#     if not cliente:
+#         raise HTTPException(status_code=404, detail="Cliente não encontrado")
+#     return cliente
 
 
-@router.get("/clientes/{cliente_id}", response_model=ClienteResponse)
+@router.get("/{cliente_id}", response_model=ClienteResponse)
 async def get_customer(cliente_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Cliente).where(Cliente.id == cliente_id))
     cliente = result.scalar_one_or_none()
@@ -53,23 +56,27 @@ async def get_customer(cliente_id: int, db: AsyncSession = Depends(get_db)):
     return cliente
 
 
-@router.patch("/clientes/{id}", response_model=ClienteResponse)
+@router.patch("/{id}", response_model=ClienteResponse)
 async def update_cliente(
-                    id: int, cliente_dados: ClienteCreate,
-                    db: AsyncSession = Depends(get_db)):
+    id: int, cliente_dados: ClienteUpdate, db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(Cliente).where(Cliente.id == id))
     cliente = result.scalar_one_or_none()
+
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    cliente.nome = cliente_dados.nome
-    cliente.email = cliente_dados.email
+
+    # Garante que apenas os campos que forma passados serão atualizados
+    cliente_atualizado = cliente_dados.model_dump(exclude_unset=True)
+    for Field, value in cliente_atualizado.items():
+        setattr(cliente, Field, value)
 
     await db.commit()
     await db.refresh(cliente)
     return cliente
 
 
-@router.delete("/clientes/{id}", status_code=204)
+@router.delete("/{id}", status_code=204)
 async def delete_cliente(id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Cliente).where(Cliente.id == id))
     cliente = result.scalar_one_or_none()

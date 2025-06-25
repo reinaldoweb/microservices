@@ -14,7 +14,7 @@ ALGORITHM = os.getenv("ALGORITHM", "HS256")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> int:
     """
     Valida e decodifica o token JWT recebido no cabeçalho Authorization (Bearer token).
     Retorna o user_id contido no token se for válido. Caso contrário, levanta um HTTP 401.
