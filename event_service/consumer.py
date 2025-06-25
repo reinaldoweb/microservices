@@ -1,12 +1,11 @@
-import httpx
 import redis.asyncio as redis
 import json
+import httpx
 from database import AsyncSessionLocal
 from models import EventoPedido
-from schemas import EventoPedidoSchema
-from dotenv import load_dotenv
 
-load_dotenv()
+# 🚀 URL interna do customer_service no Docker
+CUSTOMER_SERVICE_URL = "http://customer_service:8003"
 
 
 async def listen_redis():
@@ -14,37 +13,35 @@ async def listen_redis():
     pubsub = r.pubsub()
     await pubsub.subscribe("pedido_criado")
 
-    print("Escutando eventos no canal 'pedido_criado'...")
+    print("📡 Escutando eventos no canal 'pedido_criado'...")
 
     async for message in pubsub.listen():
-        if message["type"] == "message":
-            try:
-                evento_data = EventoPedidoSchema.parse_raw(message["data"])
-                print(f"Evento recebido: {evento_data}")
+        if message["type"] != "message":
+            continue
 
-                # 1. Salva no banco
-                async with AsyncSessionLocal() as db:
-                    novo_evento = EventoPedido(
-                        pedido_id=evento_data.pedido_id,
-                        cliente_id=evento_data.cliente_id,
-                        valor_total=evento_data.valor_total,
-                    )
-                    db.add(novo_evento)
-                    await db.commit()
-                    print("Evento salvo no banco!")
+        try:
+            evento = json.loads(message["data"])
+            print(f"📦 Evento recebido: {evento}")
 
-                # 2. Notifica outro serviço via HTTP
-                cliente_id = evento_data.cliente_id
-                try:
-                    async with httpx.AsyncClient() as client:
-                        response = await client.get(f"http://customer_service:8003/clientes/{cliente_id}")
-                        response.raise_for_status()
-                        cliente_info = response.json()
-                        print(f"Cliente encontrado: {cliente_info['nome']}")
-                except httpx.HTTPStatusError:
-                    print("Cliente não encontrado")
+            # ✅ Validação: verifica se o cliente existe via customer_service
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"{CUSTOMER_SERVICE_URL}/clientes/{evento['cliente_id']}")
+                if response.status_code != 200:
+                    print(f"❌ Cliente {evento['cliente_id']} não encontrado. Evento ignorado.")
+                    continue
 
-            except json.JSONDecodeError:
-                print(f"Evento malformado: {message['data']}")
-            except Exception as e:
-                print(f"Erro ao processar evento: {e}")
+            # 💾 Persiste o evento no banco de dados
+            async with AsyncSessionLocal() as db:
+                novo_evento = EventoPedido(
+                    pedido_id=evento["pedido_id"],
+                    cliente_id=evento["cliente_id"],
+                    valor_total=evento["valor_total"],
+                )
+                db.add(novo_evento)
+                await db.commit()
+                print("✅ Evento salvo com sucesso.")
+
+        except json.JSONDecodeError:
+            print(f"❌ Evento malformado: {message['data']}")
+        except Exception as e:
+            print(f"❌ Erro ao processar evento: {e}")
