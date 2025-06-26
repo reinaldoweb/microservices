@@ -2,9 +2,13 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
-class ClienteCreate(BaseModel):
+class ClienteBase(BaseModel):
     nome: str
     email: EmailStr
+
+
+class ClienteCreate(ClienteBase):
+    pass
 
 
 class ClienteUpdate(BaseModel):
@@ -12,10 +16,8 @@ class ClienteUpdate(BaseModel):
     email: Optional[EmailStr] = None
 
 
-class ClienteResponse(BaseModel):
+class ClienteResponse(ClienteBase):
     id: int
-    nome: str
-    email: EmailStr
 
     class Config:
-        from_attributes = True  # ← ESSA LINHA É ESSENCIAL!
+        from_attributes = True
