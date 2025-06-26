@@ -1,10 +1,6 @@
-from fastapi import FastAPI, Request
+import asyncio
+from consumer import listen_notifications
 
-app = FastAPI()
-
-
-@app.post("/notificar")
-async def notiticar(request: Request):
-    data = await request.json()
-    print("Notificação recebida:", data)
-    return {"message": "Notificação recebida com sucesso"}
+if __name__ == "__main__":
+    print("✅ Iniciando notifier_service...")
+    asyncio.run(listen_notifications())
