@@ -22,7 +22,10 @@ api_key_header = APIKeyHeader(name="X-API-KEY")
 
 def verify_api_key(key: str = Depends(api_key_header)):
     if key != API_KEY:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Chave API inválilda")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Chave API inválilda"
+        )
 
 
 # End point protegido
@@ -34,6 +37,3 @@ async def get_pizza(pizza_id: int):
     return pizza
 
 
-# @app.get("/pizzas")
-# async def get_pizzas():
-#     return list(pizzas_db.values())
