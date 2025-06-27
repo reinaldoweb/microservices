@@ -13,7 +13,7 @@ class ClienteCreate(ClienteBase):
 
 class ClienteUpdate(BaseModel):
     nome: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: EmailStr
 
 
 class ClienteResponse(ClienteBase):

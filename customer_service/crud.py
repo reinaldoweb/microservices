@@ -2,15 +2,16 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models import Cliente
-from schemas import ClienteCreate, ClienteUpdate
+from schemas import ClienteCreate, ClienteResponse
 
 
 async def criar_cliente(db: AsyncSession, cliente: ClienteCreate):
     result = await db.execute(select(Cliente).where(
         Cliente.email == cliente.email))
-    cliente = result.scalar_one_or_none()
-    if cliente:
+    cliente_existente = result.scalar_one_or_none()
+    if cliente_existente:
         raise HTTPException(status_code=400, detail="Cliente já Cadastrado")
+
     novo_cliente = Cliente(**cliente.model_dump())
     db.add(novo_cliente)
     await db.commit()
@@ -23,7 +24,7 @@ async def listar_clientes(db: AsyncSession):
     return result.scalars().all()
 
 
-async def atualizar_cliente(db: AsyncSession, id: int, dados: ClienteUpdate):
+async def atualizar_cliente(db: AsyncSession, id: int, dados: ClienteResponse):
     cliente_up = await buscar_cliente(db, id)
     if cliente_up:
         for field, value in dados.model_dump().items():
@@ -35,10 +36,10 @@ async def atualizar_cliente(db: AsyncSession, id: int, dados: ClienteUpdate):
 
 async def buscar_cliente(db: AsyncSession, id: int):
     result = await db.execute(select(Cliente).where(Cliente.id == id))
-    cliente_buscar = result.scalar_one_or_none()
-    if not cliente_buscar:
+    buscar = result.scalar_one_or_none()
+    if not buscar:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    return cliente_buscar
+    return buscar
 
 
 async def deletar_cliente(db: AsyncSession, id: int):
@@ -49,4 +50,4 @@ async def deletar_cliente(db: AsyncSession, id: int):
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
     await db.delete(cliente_deletar)
     await db.commit()
-    return {"detail": "Cliente deletado com sucesso"}
+    return cliente_deletar

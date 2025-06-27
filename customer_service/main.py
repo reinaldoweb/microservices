@@ -27,8 +27,8 @@ async def listar(db: AsyncSession = Depends(get_db)):
 
 @app.get("/clientes/{id}", response_model=ClienteResponse)
 async def buscar(id: int, db: AsyncSession = Depends(get_db)):
-    cliente = await buscar_cliente(db, id)
-    if not cliente:
+    get_cliente = await buscar_cliente(db, id)
+    if not get_cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
     return buscar_cliente
 
@@ -39,7 +39,7 @@ async def atualizar(
     cliente = await atualizar_cliente(db, id, dados)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    return atualizar_cliente
+    return cliente
 
 
 @app.delete("/cliente/{id}")
@@ -47,4 +47,4 @@ async def remover(id: int, db: AsyncSession = Depends(get_db)):
     cliente = await deletar_cliente(db, id)
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    return deletar_cliente
+    return {"message": "Cliente removido com sucesso!!"}

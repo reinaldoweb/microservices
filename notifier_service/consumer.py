@@ -3,14 +3,14 @@ import json
 
 
 async def listen_notifications():
-    client = redis.Redis(host="localhost", port=6379, decode_responses=True)
+    client = redis.Redis(host="redis", port=6379, decode_responses=True)
     pubsub = client.pubsub()
     await pubsub.subscribe("pedido_criado")
 
     print("Notifier Escutando o canal 'pedido_criado'...")
 
     async for message in pubsub.listen():
-        if message[type] == "message":
+        if message["type"] == "message":
             try:
                 evento = json.loads(message["data"])
                 print(
