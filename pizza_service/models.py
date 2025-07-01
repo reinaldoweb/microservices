@@ -1,7 +1,5 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from sqlalchemy import Column, Integer, String, Float
+from database import Base
 
 
 class Pizza(Base):
@@ -9,4 +7,4 @@ class Pizza(Base):
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String(150), nullable=False)
     descricao = Column(String(255), nullable=False)
-    preco = Column(float, nullable=False)
+    preco = Column(Float, nullable=False)

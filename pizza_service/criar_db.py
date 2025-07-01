@@ -1,6 +1,5 @@
 import asyncio
-from database import engine
-from models import Base
+from database import engine, Base
 
 
 async def criar_tabela():

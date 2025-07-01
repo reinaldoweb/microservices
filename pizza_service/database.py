@@ -1,21 +1,31 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from dotenv import load_dotenv
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
+# from models import Base
 import os
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+asyncio://postgres:postgres@postgres:5432/microservices_db")
-    
+    "postgresql+asyncpg://postgres:postgres@postgres:5432/microservices_db"
+)
+
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     class_=AsyncSession,
-    expire_on_commit=False
-    )
+    expire_on_commit=False,
+)
+
+Base = declarative_base()
+
+
+# # Use apenas uma vez para criar a tabela no banco
+# async def criar_tabela():
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)
 
 
 async def get_db():

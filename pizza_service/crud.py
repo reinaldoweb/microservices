@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models import Pizza
-from schemas import PizzaCreate, PizzaResponse
+from schemas import PizzaCreate
 
 
 async def create_pizza(db: AsyncSession, pizza: PizzaCreate):
@@ -22,7 +22,7 @@ async def listar_pizzas(db: AsyncSession):
     return result.scalars().all()
 
 
-async def atualizar_pizza(db: AsyncSession, id: int, dados: PizzaResponse):
+async def atualizar_pizza(id: int, db: AsyncSession, dados: PizzaCreate):
     pizza_update = await buscar_pizza(db, id)
     if pizza_update:
         for field, value in dados.model_dump().items():
