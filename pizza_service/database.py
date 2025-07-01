@@ -22,12 +22,6 @@ AsyncSessionLocal = sessionmaker(
 Base = declarative_base()
 
 
-# # Use apenas uma vez para criar a tabela no banco
-# async def criar_tabela():
-#     async with engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.create_all)
-
-
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
