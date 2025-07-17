@@ -32,23 +32,21 @@ def verify_api_key(key: str = Depends(api_key_header)):
         )
 
 
-@app.post("/pizzas", response_model=PizzaResponse, dependencies=[
-    Depends(verify_api_key)], status_code=status.HTTP_201_CREATED)
+@app.post("/pizzas", response_model=PizzaResponse,
+          status_code=status.HTTP_201_CREATED)
 async def criar_pizza(
         pizza: PizzaCreate, db: AsyncSession = Depends(get_db)):
     return await create_pizza(db, pizza)
 
 
-@app.get("/pizzas", response_model=list[PizzaResponse], dependencies=[
-        Depends(verify_api_key)])
+@app.get("/pizzas", response_model=list[PizzaResponse])
 async def listar(db: AsyncSession = Depends(get_db)) -> any:
     pizzas = await listar_pizzas(db)
     return [PizzaResponse.from_orm(p) for p in pizzas]
 
 
 # End point protegido
-@app.get("/pizzas/{pizza_id}", response_model=PizzaResponse, dependencies=[
-            Depends(verify_api_key)])
+@app.get("/pizzas/{pizza_id}", response_model=PizzaResponse)
 async def buscar(pizza_id: int, db: AsyncSession = Depends(get_db)):
     pizza = await buscar_pizza(db, pizza_id)
     if not pizza:
@@ -56,8 +54,7 @@ async def buscar(pizza_id: int, db: AsyncSession = Depends(get_db)):
     return PizzaResponse.from_orm(pizza)
 
 
-@app.patch("/pizzas/{pizza_id}", response_model=PizzaResponse, dependencies=[
-        Depends(verify_api_key)])
+@app.patch("/pizzas/{pizza_id}", response_model=PizzaResponse)
 async def atualizar(
         pizza_id: int,
         dados: PizzaUpdate,
@@ -68,7 +65,7 @@ async def atualizar(
     return [PizzaResponse.from_orm(pizza_up)]
 
 
-@app.delete("/pizzas/{pizza_id}", dependencies=[Depends(verify_api_key)])
+@app.delete("/pizzas/{pizza_id}")
 async def deletar(pizza_id: int, db: AsyncSession = Depends(get_db)):
     pizza_deletar = await deletar_pizza(db, pizza_id)
     if not pizza_deletar:

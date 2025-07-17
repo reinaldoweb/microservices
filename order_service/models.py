@@ -10,6 +10,7 @@ class Pedido(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     pizza_nome = Column(String(255), nullable=False)
+    pizza_id = Column(Integer, nullable=False)
     quantidade = Column(Integer, nullable=False)
     valor_unitario = Column(Float, nullable=False)
     valor_total = Column(Float, nullable=False)

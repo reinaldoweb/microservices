@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from schemas import Token
 import os
 
-SECRETE_KEY = os.getenv("SECRET_KEY", "chave-super-secreta")
+SECRETE_KEY = os.getenv("SECRET_KEY", "çlkdjlaskjdfçla0e0rwe9rdfasdp323OT")
 ALGORITHM = "HS256"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")

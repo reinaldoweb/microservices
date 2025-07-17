@@ -1,8 +1,8 @@
 fastapi
 uvicorn
+sqlalchemy[asyncio]
+asyncpg
+python-dotenv
+python-jose[cryptography]
 httpx
 redis
-python-jose
-python-dotenv
-sqlalchemy
-asyncpg

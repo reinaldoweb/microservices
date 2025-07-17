@@ -16,21 +16,26 @@ app = FastAPI(title="Customer Service")
 
 @app.post("/clientes", response_model=ClienteResponse, status_code=200)
 async def create_cliente(
-        cliente: ClienteCreate, db: AsyncSession = Depends(get_db)):
+        cliente: ClienteCreate,
+        db: AsyncSession = Depends(get_db)):
     return await criar_cliente(db, cliente)
 
 
 @app.get("/clientes", response_model=list[ClienteResponse])
-async def listar(db: AsyncSession = Depends(get_db)):
+async def listar(
+    db: AsyncSession = Depends(get_db)
+        ):
     return await listar_clientes(db)
 
 
 @app.get("/clientes/{id}", response_model=ClienteResponse)
-async def buscar(id: int, db: AsyncSession = Depends(get_db)):
+async def buscar(
+        id: int,
+        db: AsyncSession = Depends(get_db)):
     get_cliente = await buscar_cliente(db, id)
     if not get_cliente:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
-    return buscar_cliente
+    return get_cliente
 
 
 @app.patch("/clientes/{id}", response_model=ClienteResponse)
