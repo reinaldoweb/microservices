@@ -2,6 +2,11 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class OrderItem(BaseModel):
+    id: int
+    quantidade: int
+
+
 class OrderBase(BaseModel):
     pizza_nome: str
     quantidade: int
@@ -12,9 +17,8 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(BaseModel):
-    pizza_id: int
-    quantidade: int
-    cliente_id: int
+    pizzas: List[OrderItem]
+    bebidas: List[OrderItem]
 
 
 class OrderResponse(OrderBase):

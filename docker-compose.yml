@@ -45,6 +45,21 @@ services:
       - pizza_service
       - redis
 
+  drink_service:
+    build:
+      context: ./drink_service
+    container_name: drink_service
+    ports:
+      - "8004:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./drink_service:/app
+    working_dir: /app
+    depends_on:
+      - postgres
+    env_file:
+      - ./drink_service/.env
+
   customer_service:
     build:
       context: ./customer_service
