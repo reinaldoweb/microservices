@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import Pedido
 import httpx
 from eventos import publicar_pedido_criado
-from schemas import OrderResponse, OrderCreate, OrderBase
+from schemas import OrderCreate
 from dotenv import load_dotenv
 
 
@@ -38,7 +38,8 @@ async def create_order(db: AsyncSession, order: OrderCreate, user_id: str):
         cliente_id = int(user_id)
     except ValueError:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="ID do usuário inválido"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ID do usuário inválido"
         )
 
     # Cria e salva o pedido no banco de dados
@@ -60,14 +61,18 @@ async def create_order(db: AsyncSession, order: OrderCreate, user_id: str):
         cliente_id=cliente_id,
         total=valor_total,
     )
-
     # Retorna os dados do pedido criado (modelo de resposta)
     return novo_pedido
 
 
-async def list_order(db: AsyncSession, user_id: int) -> OrderResponse:
-    cliente_id = user_id
-    result = await db.execute(select(Pedido).where(Pedido.cliente_id == cliente_id))
+async def list_order(db: AsyncSession, user_id: str):
+    try:
+        cliente_id = int(user_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="ID de usuário inválido")
+
+    result = await db.execute(select(Pedido).where(
+                     Pedido.cliente_id == cliente_id))
     return result.scalars().all()
 
 
@@ -77,7 +82,8 @@ async def delete_order(db: AsyncSession, id: int):
 
     if not pedido_del:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Pedido não encontrado"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pedido não encontrado"
         )
     await db.delete(pedido_del)
     await db.commit()

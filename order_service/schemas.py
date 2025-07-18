@@ -7,7 +7,7 @@ class OrderBase(BaseModel):
     quantidade: int
     valor_unitario: float
     valor_total: float
-    data_pedido: datetime
+    criado_em: datetime
     cliente_id: int
 
 
@@ -21,4 +21,4 @@ class OrderResponse(OrderBase):
     id: int
 
     class config:
-        from_attributes = True
+        orm_mode = True
