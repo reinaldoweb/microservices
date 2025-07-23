@@ -1,14 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas import ClienteCreate, ClienteResponse, ClienteUpdate
-from crud import (
+from .schemas import ClienteCreate, ClienteResponse, ClienteUpdate
+from .crud import (
     criar_cliente,
     listar_clientes,
     buscar_cliente,
     atualizar_cliente,
     deletar_cliente,
 )
-from database import get_db
+from .database import get_db
 
 
 app = FastAPI(title="Customer Service")

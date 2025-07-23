@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from crud import create_drink, list_drinks, get_drink_by_id
+from repository import create_drink, list_drinks, get_drink_by_id
 from database import get_db
 from schemas import DrinkCreate, DrinkResponse
 from typing import List

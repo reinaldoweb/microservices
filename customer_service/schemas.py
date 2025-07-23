@@ -3,17 +3,16 @@ from pydantic import BaseModel, EmailStr
 
 
 class ClienteBase(BaseModel):
-    nome: str
-    email: EmailStr
+    nome: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 
 class ClienteCreate(ClienteBase):
     pass
 
 
-class ClienteUpdate(BaseModel):
-    nome: Optional[str] = None
-    email: EmailStr
+class ClienteUpdate(ClienteBase):
+    pass
 
 
 class ClienteResponse(ClienteBase):
